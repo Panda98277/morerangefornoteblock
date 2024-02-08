@@ -4,7 +4,19 @@ pluginManagement {
 			name = 'Fabric'
 			url = 'https://maven.fabricmc.net/'
 		}
+		maven {
+			url 'https://maven.aliyun.com/repository/public/'
+		}
+		maven {
+			url 'https://maven.aliyun.com/repository/spring/'
+		}
 		mavenCentral()
 		gradlePluginPortal()
 	}
+    plugins {
+        id 'org.jetbrains.kotlin.jvm' version '1.9.22'
+    }
+}
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.5.0'
 }
