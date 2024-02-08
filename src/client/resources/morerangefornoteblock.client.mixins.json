@@ -1,0 +1,9 @@
+{
+	"required": false,
+	"package": "com.panda98277.morerangefornoteblock.mixin.client",
+	"compatibilityLevel": "JAVA_17",
+	"client": [],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
