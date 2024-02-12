@@ -1,6 +1,6 @@
 {
 	"parent": "block/cube_all",
 	"textures": {
-		"all": "noteblockne:blocks/noteblock_p4"
+		"all": "morerangefornoteblock:block/noteblock_p4"
 	}
 }
