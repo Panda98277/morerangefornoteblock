@@ -5,26 +5,16 @@ import com.panda98277.morerangefornoteblock.util.ModSoundHandler
 import net.minecraft.block.BlockState
 import net.minecraft.block.NoteBlock
 import net.minecraft.block.enums.Instrument
-import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.registry.tag.ItemTags
+import net.minecraft.particle.ParticleTypes
+import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvent
-import net.minecraft.stat.Stats
-import net.minecraft.util.ActionResult
-import net.minecraft.util.Hand
-import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Direction
 import net.minecraft.world.World
-import net.minecraft.world.event.GameEvent
-import org.jetbrains.annotations.Nullable
+import org.jetbrains.annotations.NotNull
 
-class NoteBlockBase : NoteBlock {
-    val name:String
-    val indexModifier:Int
-
-
-    val PUBLIC_INSTRUMENTS_PP: List<SoundEvent> = Lists.newArrayList(
+class NoteBlockBase(val name: String, private val indexModifier: Int, settings: Settings?) : NoteBlock(settings) {
+    private val instrumentsPP: List<SoundEvent> = Lists.newArrayList(
         ModSoundHandler.harp,
         ModSoundHandler.basedrum,
         ModSoundHandler.snare,
@@ -37,7 +27,7 @@ class NoteBlockBase : NoteBlock {
         ModSoundHandler.xylobone
     )
 
-    val PUBLIC_INSTRUMENTS_P4: List<SoundEvent> = Lists.newArrayList(
+    private val instrumentsP4: List<SoundEvent> = Lists.newArrayList(
         ModSoundHandler.p4_harp,
         ModSoundHandler.p4_basedrum,
         ModSoundHandler.p4_snare,
@@ -50,7 +40,7 @@ class NoteBlockBase : NoteBlock {
         ModSoundHandler.p4_xylobone
     )
 
-    val PUBLIC_INSTRUMENTS_MM: List<SoundEvent> = Lists.newArrayList(
+    private val instrumentsMM: List<SoundEvent> = Lists.newArrayList(
         ModSoundHandler.mm_harp,
         ModSoundHandler.mm_basedrum,
         ModSoundHandler.mm_snare,
@@ -63,38 +53,59 @@ class NoteBlockBase : NoteBlock {
         ModSoundHandler.mm_xylobone
     )
 
-    constructor(name: String, indexModifier: Int, settings: Settings?):super(settings){
-        this.name = name
-        this.indexModifier = indexModifier
-    }
+    private fun getInstrument(id: Int): SoundEvent {
+        var ordinal = id
+        if (ordinal < 0 || ordinal >= instrumentsPP.size) {
+            ordinal = 0
+        }
 
-    private fun playNote(@Nullable entity: Entity?, state: BlockState, world: World, pos: BlockPos?) {
-        if ((state.get(INSTRUMENT) as Instrument).isNotBaseBlock || world.getBlockState(pos!!.up()).isAir) {
-            world.addSyncedBlockEvent(pos, this, 0, 0)
-            world.emitGameEvent(entity, GameEvent.NOTE_BLOCK_PLAY, pos)
+        return when (indexModifier) {
+            2 -> instrumentsPP[ordinal]
+
+            4 -> instrumentsP4[ordinal]
+
+            else -> instrumentsMM[ordinal]
         }
     }
 
-    override fun onUse(
-        state: BlockState?,
+    @Deprecated("Deprecated in Java")
+    override fun onSyncedBlockEvent(
+        @NotNull state: BlockState?,
         world: World?,
         pos: BlockPos?,
-        player: PlayerEntity?,
-        hand: Hand?,
-        hit: BlockHitResult?
-    ): ActionResult {
-        val itemStack = player!!.getStackInHand(hand)
-        if (itemStack.isIn(ItemTags.NOTEBLOCK_TOP_INSTRUMENTS) && hit!!.side == Direction.UP) {
-            return ActionResult.PASS
-        } else if (world!!.isClient) {
-            return ActionResult.SUCCESS
+        type: Int,
+        data: Int
+    ): Boolean {
+        val instrument = state!!.get(INSTRUMENT) as Instrument
+        val f: Float
+        if (instrument.shouldSpawnNoteParticles()) {
+            val i = state.get(NOTE) as Int
+            f = getNotePitch(i)
+            world!!.addParticle(
+                ParticleTypes.NOTE,
+                pos!!.x.toDouble() + 0.5,
+                pos.y.toDouble() + 1.2,
+                pos.z.toDouble() + 0.5,
+                i.toDouble() / 24.0,
+                0.0,
+                0.0
+            )
         } else {
-            var blockState = state!!.cycle(NOTE) as BlockState
-            world.setBlockState(pos, blockState, 3)
-            this.playNote(player, blockState, world, pos)
-            player.incrementStat(Stats.TUNE_NOTEBLOCK)
-            return ActionResult.CONSUME
+            f = 1.0f
         }
-    }
 
+        world!!.playSound(
+            null as PlayerEntity?,
+            pos!!.x.toDouble() + 0.5,
+            pos.y.toDouble() + 0.5,
+            pos.z.toDouble() + 0.5,
+            getInstrument(instrument.ordinal),
+            SoundCategory.RECORDS,
+            3.0f,
+            f,
+            world.random.nextLong()
+        )
+        return true
+
+    }
 }
