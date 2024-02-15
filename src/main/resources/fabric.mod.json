@@ -29,17 +29,14 @@
 		]
 	},
 	"mixins": [
-		"morerangefornoteblock.mixins.json",
-		{
-			"config": "morerangefornoteblock.client.mixins.json",
-			"environment": "client"
-		}
+
 	],
 	"depends": {
 		"fabricloader": ">=0.15.0",
 		"minecraft": "~1.20.4",
 		"java": ">=17",
-		"fabric-api": "*"
+		"fabric-api": "*",
+		"fabric-language-kotlin": ">=1.10.17+kotlin.1.9.22"
 	},
 	"suggests": {
 		"another-mod": "*"
