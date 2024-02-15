@@ -8,7 +8,7 @@ class MoreRangeForNoteblock : ModInitializer {
 
 
     override fun onInitialize() {
-        AllBlocks.registry();
+        AllBlocks.registry()
     }
 
     companion object {
