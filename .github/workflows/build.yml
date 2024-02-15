@@ -38,3 +38,27 @@ jobs:
         with:
           name: Artifacts
           path: build/libs/
+      - name: Get short commit sha
+        id: get_short_sha
+        run: |
+          short_sha=$(echo ${GITHUB_SHA} | cut -c1-7)
+          echo "short_sha=$short_sha" >> $GITHUB_OUTPUT
+      - name: Get commit count
+        id: get_commit_count
+        run: |
+          commit_count=$(git log | grep -e 'commit [a-zA-Z0-9]*' | wc -l)
+          echo "commit_count=$commit_count" >> $GITHUB_OUTPUT
+      - name: Read Properties mod info
+        id: mod_info
+        uses: christian-draeger/read-properties@1.1.1
+        with:
+          path: gradle.properties
+          properties: 'mod_name mod_version'
+      - name: Upload assets to GitHub Action
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ steps.mod_info.outputs.mod_name }} ${{ steps.mod_info.outputs.mod_version }}.${{ steps.get_commit_count.outputs.commit_count }}+${{ steps.get_short_sha.outputs.short_sha }}"
+          path: |
+            LICENSE
+            fabricWrapper/build/libs/*.jar
+            fabricWrapper/build/tmp/submods/META-INF/jars/*.jar
