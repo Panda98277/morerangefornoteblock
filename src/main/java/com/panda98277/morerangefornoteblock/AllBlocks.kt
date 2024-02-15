@@ -11,8 +11,8 @@ import net.minecraft.util.Identifier
 
 class AllBlocks {
     companion object {
-        private val NOTE_BLOCK_P = NoteBlockBase("noteblock_p.json", 2, FabricBlockSettings.create().hardness(4.0F))
-        private val NOTE_BLOCK_P4 = NoteBlockBase("noteblock_p4.json", 4, FabricBlockSettings.create().hardness(4.0F))
+        private val NOTE_BLOCK_P = NoteBlockBase("noteblock_p", 2, FabricBlockSettings.create().hardness(4.0F))
+        private val NOTE_BLOCK_P4 = NoteBlockBase("noteblock_p4", 4, FabricBlockSettings.create().hardness(4.0F))
         private val NOTE_BLOCK_M = NoteBlockBase("noteblock_m", -2, FabricBlockSettings.create().hardness(4.0F))
         fun registry() {
             Registry.register(Registries.BLOCK, Identifier(Reference.MODID, NOTE_BLOCK_P.name), NOTE_BLOCK_P)
